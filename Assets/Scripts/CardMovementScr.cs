@@ -5,7 +5,13 @@ using UnityEngine.EventSystems;
 
 public class CardMovementScr : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    /// <summary>
+    /// Главная камера
+    /// </summary>
     Camera MainCamera;
+    /// <summary>
+    /// Отступ от центра карты
+    /// </summary>
     Vector3 offset;
     public Transform DefaultParent, DefaultTempCardParent;
     GameObject TempCardGO;
@@ -17,9 +23,10 @@ public class CardMovementScr : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         TempCardGO = GameObject.Find("TempCardGO");
         GameManager = FindObjectOfType<GameManagerScr>();
     }
+    //OnBeginDrag- код выполняется один раз, как только начинаем перетягивать объект
     public void OnBeginDrag(PointerEventData eventData)
     {
-        offset = transform.position - MainCamera.ScreenToWorldPoint(eventData.position);
+        offset = transform.position - MainCamera.ScreenToWorldPoint(eventData.position);//отнимаем отступ от центра до указателя мыши, иначе при поднятии карты, указатель мыши перемещается к центру
 
         DefaultParent = DefaultTempCardParent = transform.parent;
 
@@ -37,21 +44,21 @@ public class CardMovementScr : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         GetComponent<CanvasGroup>().blocksRaycasts = false;
 
     }
-
+    //OnDrag- Выполняется каждый кадр, пока тянем объект
     public void OnDrag(PointerEventData eventData)
     {
         if (!IsDraggable)
             return;
-
-        Vector3 newPos = MainCamera.ScreenToWorldPoint(eventData.position);
-        transform.position = newPos + offset;
+        
+        Vector3 newPos = MainCamera.ScreenToWorldPoint(eventData.position); // значение текущей координаты мыши
+        transform.position = newPos + offset; // прибавляем обратно отступ
 
         if (TempCardGO.transform.parent != DefaultTempCardParent)
             TempCardGO.transform.SetParent(DefaultTempCardParent);
 
         CheckPosition();
     }
-
+    //OnEndDrag - выполняется  раз, когда отпускаем объект
     public void OnEndDrag(PointerEventData eventData)
     {
         if (!IsDraggable)
